@@ -74,10 +74,12 @@
                                         <span>Position horizontale</span>
                                         <span class="text-muted small ms-2" id="horizontal-value">0 px</span>
                                     </label>
-                                    <div class="d-flex align-items-center">
-                                        <span class="text-muted small me-1">G</span>
-                                        <input type="range" class="form-range" id="horizontal-position" min="-500" max="500" value="0" step="10">
-                                        <span class="text-muted small ms-1">D</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="horizontal-decrease"><i class="fas fa-chevron-left"></i></button>
+                                        <span class="text-muted small">G</span>
+                                        <input type="range" class="form-range flex-grow-1" id="horizontal-position" min="-500" max="500" value="0" step="10">
+                                        <span class="text-muted small">D</span>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="horizontal-increase"><i class="fas fa-chevron-right"></i></button>
                                     </div>
                                 </div>
 
@@ -86,10 +88,12 @@
                                         <span>Position verticale</span>
                                         <span class="text-muted small ms-2" id="vertical-value">0 px</span>
                                     </label>
-                                    <div class="d-flex align-items-center">
-                                        <span class="text-muted small me-1">H</span>
-                                        <input type="range" class="form-range" id="vertical-position" min="-500" max="500" value="0" step="10">
-                                        <span class="text-muted small ms-1">B</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="vertical-decrease"><i class="fas fa-chevron-down fa-rotate-90"></i></button>
+                                        <span class="text-muted small">H</span>
+                                        <input type="range" class="form-range flex-grow-1" id="vertical-position" min="-500" max="500" value="0" step="10">
+                                        <span class="text-muted small">B</span>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="vertical-increase"><i class="fas fa-chevron-up fa-rotate-90"></i></button>
                                     </div>
                                 </div>
 
@@ -98,10 +102,10 @@
                                         <span>Taille</span>
                                         <span class="text-muted small ms-2" id="scale-value">100%</span>
                                     </label>
-                                    <div class="d-flex align-items-center">
-                                        <span class="text-muted small me-1">-</span>
-                                        <input type="range" class="form-range" id="scale-factor" min="0.25" max="3.0" value="1.0" step="0.1">
-                                        <span class="text-muted small ms-1">+</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="scale-decrease"><i class="fas fa-minus"></i></button>
+                                        <input type="range" class="form-range flex-grow-1" id="scale-factor" min="0.25" max="3.0" value="1.0" step="0.05">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="scale-increase"><i class="fas fa-plus"></i></button>
                                     </div>
                                 </div>
                             </div>

@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const verticalValue = document.getElementById('vertical-value');
     const scaleValue = document.getElementById('scale-value');
     const processButtonContainer = document.getElementById('process-button-container');
+    // Boutons de nudge
+    const horizontalDecrease = document.getElementById('horizontal-decrease');
+    const horizontalIncrease = document.getElementById('horizontal-increase');
+    const verticalDecrease = document.getElementById('vertical-decrease');
+    const verticalIncrease = document.getElementById('vertical-increase');
+    const scaleDecrease = document.getElementById('scale-decrease');
+    const scaleIncrease = document.getElementById('scale-increase');
     
     // Nouveaux éléments pour le choix image/texte
     const typeImage = document.getElementById('type-image');
@@ -33,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let currentFilename = null; // Stocker le nom du fichier traité
     let currentType = 'image'; // Type actuel (image ou text)
+    let lastAction = null; // 'pos' | 'scale' | null
     
     // Gestionnaire pour le champ texte avec mise à jour automatique
     logoTextInput.addEventListener('input', function() {
@@ -42,8 +50,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Gestionnaires pour les sliders avec mise à jour automatique
+    let fromSlider = false;
     horizontalPosition.addEventListener('input', function() {
         horizontalValue.textContent = this.value;
+        fromSlider = true;
+        lastAction = 'pos';
         if (currentFilename) {
             debounceUpdate();
         }
@@ -51,6 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     verticalPosition.addEventListener('input', function() {
         verticalValue.textContent = this.value;
+        fromSlider = true;
+        lastAction = 'pos';
         if (currentFilename) {
             debounceUpdate();
         }
@@ -58,10 +71,53 @@ document.addEventListener('DOMContentLoaded', function() {
     
     scaleFactor.addEventListener('input', function() {
         scaleValue.textContent = Math.round(this.value * 100);
+        fromSlider = true;
+        lastAction = 'scale';
         if (currentFilename) {
             debounceUpdate();
         }
     });
+
+    // --- Boutons de nudge ---
+    function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+    function nudgeHorizontal(delta) {
+        const step = parseInt(horizontalPosition.step) || 10;
+        const min = parseInt(horizontalPosition.min);
+        const max = parseInt(horizontalPosition.max);
+        horizontalPosition.value = clamp(parseInt(horizontalPosition.value) + delta * step, min, max);
+        horizontalValue.textContent = horizontalPosition.value;
+        fromSlider = true;
+        lastAction = 'pos';
+        if (currentFilename) debounceUpdate();
+    }
+    function nudgeVertical(delta) {
+        const step = parseInt(verticalPosition.step) || 10;
+        const min = parseInt(verticalPosition.min);
+        const max = parseInt(verticalPosition.max);
+        verticalPosition.value = clamp(parseInt(verticalPosition.value) + delta * step, min, max);
+        verticalValue.textContent = verticalPosition.value;
+        fromSlider = true;
+        lastAction = 'pos';
+        if (currentFilename) debounceUpdate();
+    }
+    function nudgeScale(delta) {
+        const step = parseFloat(scaleFactor.step) || 0.05;
+        const min = parseFloat(scaleFactor.min);
+        const max = parseFloat(scaleFactor.max);
+        const next = clamp(parseFloat(scaleFactor.value) + delta * step, min, max);
+        scaleFactor.value = next.toFixed(2);
+        scaleValue.textContent = Math.round(parseFloat(scaleFactor.value) * 100);
+        fromSlider = true;
+        lastAction = 'scale';
+        if (currentFilename) debounceUpdate();
+    }
+
+    if (horizontalDecrease) horizontalDecrease.addEventListener('click', () => nudgeHorizontal(-1));
+    if (horizontalIncrease) horizontalIncrease.addEventListener('click', () => nudgeHorizontal(1));
+    if (verticalDecrease) verticalDecrease.addEventListener('click', () => nudgeVertical(-1));
+    if (verticalIncrease) verticalIncrease.addEventListener('click', () => nudgeVertical(1));
+    if (scaleDecrease) scaleDecrease.addEventListener('click', () => nudgeScale(-1));
+    if (scaleIncrease) scaleIncrease.addEventListener('click', () => nudgeScale(1));
     
     // Gestionnaire pour les radio buttons
     typeImage.addEventListener('change', function() {
@@ -176,6 +232,11 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('vertical_offset', verticalPosition.value);
         formData.append('scale_factor', scaleFactor.value);
         formData.append('type', 'image');
+        if (fromSlider && lastAction) {
+            formData.append('override', lastAction);
+            fromSlider = false;
+            lastAction = null;
+        }
         
         fetch('/process_logo', {
             method: 'POST',
@@ -194,6 +255,11 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('vertical_offset', verticalPosition.value);
         formData.append('scale_factor', parseFloat(scaleFactor.value));
         formData.append('type', 'text');
+        if (fromSlider && lastAction) {
+            formData.append('override', lastAction);
+            fromSlider = false;
+            lastAction = null;
+        }
         
         console.log('Sending text with scale_factor:', parseFloat(scaleFactor.value));
         
@@ -213,6 +279,11 @@ document.addEventListener('DOMContentLoaded', function() {
         formData.append('horizontal_offset', horizontalPosition.value);
         formData.append('vertical_offset', verticalPosition.value);
         formData.append('scale_factor', scaleFactor.value);
+        if (fromSlider && lastAction) {
+            formData.append('override', lastAction);
+            fromSlider = false;
+            lastAction = null;
+        }
         fetch('/process_card', {
             method: 'POST',
             body: formData

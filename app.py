@@ -40,6 +40,9 @@ def process_logo_route():
     try:
         # Récupérer le type (image ou text)
         logo_type = request.form.get('type', 'image')
+        override_param = request.form.get('override')
+        override_scale = override_param == 'scale'
+        override_position = override_param == 'pos'
         
         # Récupérer les paramètres d'ajustement
         horizontal_offset = float(request.form.get('horizontal_offset', 0))
@@ -69,7 +72,14 @@ def process_logo_route():
             output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
             
             # Traiter le logo avec les nouveaux paramètres
-            process_logo(input_path, output_path, horizontal_offset=horizontal_offset, vertical_offset=vertical_offset, scale_factor=scale_factor)
+            process_logo(
+                input_path,
+                output_path,
+                horizontal_offset=horizontal_offset,
+                vertical_offset=vertical_offset,
+                scale_factor=scale_factor,
+                override_limits={'scale': override_scale, 'position': override_position}
+            )
             
             # Supprimer le fichier d'entrée
             os.remove(input_path)
@@ -87,7 +97,14 @@ def process_logo_route():
             
             # Traiter le texte avec les mêmes paramètres
             from logo_processor import process_text_logo
-            process_text_logo(text, output_path, horizontal_offset=horizontal_offset, vertical_offset=vertical_offset, scale_factor=scale_factor)
+            process_text_logo(
+                text,
+                output_path,
+                horizontal_offset=horizontal_offset,
+                vertical_offset=vertical_offset,
+                scale_factor=scale_factor,
+                override_limits={'scale': override_scale, 'position': override_position}
+            )
         
         return jsonify({
             'success': True,
@@ -115,6 +132,9 @@ def process_card_route():
         horizontal_offset = float(request.form.get('horizontal_offset', 0))
         vertical_offset = float(request.form.get('vertical_offset', 0))
         scale_factor = float(request.form.get('scale_factor', 1.0))
+        override_param = request.form.get('override')
+        override_scale = override_param == 'scale'
+        override_position = override_param == 'pos'
         # Vérifier le fichier
         if 'logo' not in request.files:
             return jsonify({'success': False, 'error': 'Aucun fichier envoyé'}), 400
@@ -129,7 +149,14 @@ def process_card_route():
         output_filename = f"card_{uuid.uuid4().hex[:8]}.png"
         output_path = os.path.join(app.config['PROCESSED_FOLDER'], output_filename)
         # Traiter la carte
-        process_card_logo(input_path, output_path, scale_factor=scale_factor, horizontal_offset=horizontal_offset, vertical_offset=vertical_offset)
+        process_card_logo(
+            input_path,
+            output_path,
+            scale_factor=scale_factor,
+            horizontal_offset=horizontal_offset,
+            vertical_offset=vertical_offset,
+            override_limits={'scale': override_scale, 'position': override_position}
+        )
         # Supprimer le fichier d'entrée
         os.remove(input_path)
         return jsonify({'success': True, 'filename': output_filename})

@@ -3,3 +3,4 @@ Flask>=2.0.0
 Werkzeug>=2.0.0
 cairosvg>=2.7.0
 gunicorn>=23.0.0 
+cairocffi>=1.7.1
