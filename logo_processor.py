@@ -406,16 +406,22 @@ def process_card_logo(logo_path, output_path, card_template_path='static/card_te
             processed_logo.paste(color_img, (0, 0), mask=alpha_mask)
         # Redimensionnement proportionnel
         original_width, original_height = processed_logo.size
+        # Calcul de la taille de base (fit) qui tient dans max_width×max_height
+        base_width_ratio = max_width / original_width
+        base_height_ratio = max_height / original_height
+        base_ratio = min(base_width_ratio, base_height_ratio)
+
         if isinstance(override_limits, dict):
             override_scale = override_limits.get('scale', False)
         else:
             override_scale = bool(override_limits)
+
         if override_scale:
-            ratio = scale_factor
+            # Appliquer le facteur par rapport à la taille de base (100% = fit)
+            ratio = base_ratio * scale_factor
         else:
-            width_ratio = max_width / original_width
-            height_ratio = max_height / original_height
-            ratio = min(width_ratio, height_ratio) * scale_factor
+            # Respecter les limites et appliquer le facteur
+            ratio = base_ratio * scale_factor
         new_width = int(original_width * ratio)
         new_height = int(original_height * ratio)
         resized_logo = processed_logo.resize((new_width, new_height), Image.LANCZOS)
